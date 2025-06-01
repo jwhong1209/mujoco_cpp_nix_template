@@ -3110,15 +3110,15 @@ void Simulate::RenderLoop()
       // printf("Current Camera View: %f, %f, %f, %f, %f, %f \n", this->cam.azimuth,
       //  this->cam.distance, this->cam.elevation, this->cam.lookat[0], this->cam.lookat[1],
       //  this->cam.lookat[2]);
-      this->cam.azimuth = 180;
-      this->cam.distance = 5;
-      this->cam.elevation = -4.75;
-      this->cam.lookat[0] = 0.2;
-      this->cam.lookat[1] = 0.8;
-      this->cam.lookat[2] = 0.5;
+      // this->cam.azimuth = 180;
+      // this->cam.distance = 5;
+      // this->cam.elevation = -4.75;
+      // this->cam.lookat[0] = 0.2;
+      // this->cam.lookat[1] = 0.8;
+      // this->cam.lookat[2] = 0.5;
 
       /* Perturbation */
-      this->opt.flags[mjVIS_PERTFORCE] = true;
+      // this->opt.flags[mjVIS_PERTFORCE] = true;
       //* ------------------------------------------------------------------------------------------
 
       // poll and handle events

@@ -3,8 +3,6 @@
 
 #include "eigen_types.hpp"
 
-// TODO: Add simple trajectory e.g. sinusoidal or circular
-
 template <typename T>
 class TrajectoryGenerator
 {

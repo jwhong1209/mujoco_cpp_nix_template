@@ -2,7 +2,7 @@
   description = "Minimal MuJoCo (C++) Simulation Template in Nix";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.11";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.11"; # ! 25.05 is unstable
     nixgl.url = "github:nix-community/nixGL";
   };
 
@@ -36,8 +36,8 @@
               pkgs.eigen
 
               # build tools
-              pkgs.cmake
               pkgs.pkg-config
+              pkgs.cmake
             ];
 
             # Environment variable path setting for CMake

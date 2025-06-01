@@ -1,0 +1,52 @@
+<mujoco model="fr3 scene">
+  <include file="fr3_hand.xml"/>
+
+  <statistic center="0.2 0 0.4" extent=".8"/>
+
+  <visual>
+    <headlight diffuse="0.6 0.6 0.6" ambient="0.3 0.3 0.3" specular="0 0 0"/>
+    <rgba haze="0.15 0.25 0.35 1"/>
+    <global azimuth="120" elevation="-20"/>
+  </visual>
+
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="3072"/>
+    <texture type="2d" name="groundplane" builtin="checker" mark="edge" rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3"
+      markrgb="0.8 0.8 0.8" width="300" height="300"/>
+    <material name="groundplane" texture="groundplane" texuniform="true" texrepeat="5 5" reflectance="0.2"/>
+  </asset>
+
+  <worldbody>
+    <light pos="0 0 1.5" dir="0 0 -1" directional="true"/>
+    <geom name="floor" size="0 0 0.05" type="plane" material="groundplane"/>
+  </worldbody>
+
+  <sensor>
+    <!-- NOTE: Adding noise can negatively effect simulation -->
+    <jointpos name="joint1_pos" joint="fr3_joint1" noise="0e-9"/>
+    <jointpos name="joint2_pos" joint="fr3_joint2" noise="0e-9"/>
+    <jointpos name="joint3_pos" joint="fr3_joint3" noise="0e-9"/>
+    <jointpos name="joint4_pos" joint="fr3_joint4" noise="0e-9"/>
+    <jointpos name="joint5_pos" joint="fr3_joint5" noise="0e-9"/>
+    <jointpos name="joint6_pos" joint="fr3_joint6" noise="0e-9"/>
+    <jointpos name="joint7_pos" joint="fr3_joint7" noise="0e-9"/>
+
+    <jointvel name="joint1_vel" joint="fr3_joint1" noise="0e-9"/>
+    <jointvel name="joint2_vel" joint="fr3_joint2" noise="0e-9"/>
+    <jointvel name="joint3_vel" joint="fr3_joint3" noise="0e-9"/>
+    <jointvel name="joint4_vel" joint="fr3_joint4" noise="0e-9"/>
+    <jointvel name="joint5_vel" joint="fr3_joint5" noise="0e-9"/>
+    <jointvel name="joint6_vel" joint="fr3_joint6" noise="0e-9"/>
+    <jointvel name="joint7_vel" joint="fr3_joint7" noise="0e-9"/>
+
+    <framepos     name="ee_pos"     objtype="site" objname="tcp_site" /> <!-- 14, 15, 16 -->
+    <framequat    name="ee_quat"    objtype="site" objname="tcp_site" /> <!-- 17, 18, 19, 20 -->
+    <framelinvel  name="ee_linvel"  objtype="site" objname="tcp_site" /> <!-- 21, 22, 23 -->
+    <frameangvel  name="ee_angvel"  objtype="site" objname="tcp_site" /> <!-- 24, 25, 26 -->
+    <framelinacc  name="ee_linacc"  objtype="site" objname="tcp_site" /> <!-- 27, 28, 29 -->
+    <frameangacc  name="ee_angacc"  objtype="site" objname="tcp_site" /> <!-- 30, 31, 32 -->
+
+    <force  site="hand_site" name="hand_force"  noise="0" /> <!-- 33,34,35 -->
+    <torque site="hand_site" name="hand_torque" noise="0" /> <!-- 36,37,38 -->
+  </sensor>
+</mujoco>

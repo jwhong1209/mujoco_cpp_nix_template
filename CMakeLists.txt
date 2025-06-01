@@ -39,7 +39,7 @@ endif()
 file(GLOB_RECURSE SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/common/src/*.cpp
+  # ${CMAKE_CURRENT_SOURCE_DIR}/common/src/*.cpp
 )
 
 ### Create executable and link libraries
@@ -49,10 +49,10 @@ add_executable(${EXECUTABLE_NAME} ${SOURCES})
 target_include_directories(${EXECUTABLE_NAME}
 PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${CMAKE_CURRENT_SOURCE_DIR}/common/include/controller
-  ${CMAKE_CURRENT_SOURCE_DIR}/common/include/motion
-  ${CMAKE_CURRENT_SOURCE_DIR}/common/include/robot
-  ${CMAKE_CURRENT_SOURCE_DIR}/common/include/utilities
+  # ${CMAKE_CURRENT_SOURCE_DIR}/common/include/controller
+  # ${CMAKE_CURRENT_SOURCE_DIR}/common/include/motion
+  # ${CMAKE_CURRENT_SOURCE_DIR}/common/include/robot
+  # ${CMAKE_CURRENT_SOURCE_DIR}/common/include/utilities
   $<INSTALL_INTERFACE:include>
 )
 

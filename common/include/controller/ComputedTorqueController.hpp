@@ -9,7 +9,7 @@
 
 #include <mujoco/mujoco.h>
 
-#include "DoublePendulumModel.hpp"
+#include "FrankaResearch3.hpp"
 #include "TrajectoryGenerator.hpp"
 #include "save_data.hpp"
 

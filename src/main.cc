@@ -28,7 +28,7 @@
 #include <thread>
 
 /* Custom libraries */
-#include "ComputedTorqueController.hpp"
+// #include "ComputedTorqueController.hpp"
 
 namespace
 {
@@ -352,7 +352,7 @@ void PhysicsThread(mj::Simulate * sim, const char * filename)
 
       //* controller callback *//
       // !!! mjcb_control should be callback after simulation initialized
-      mjcb_control = &ComputedTorqueController<double>::update;
+      // mjcb_control = &ComputedTorqueController<double>::update;
     }
     else
     {
@@ -394,12 +394,8 @@ int main(int argc, char ** argv)
 
   //* set robot model file path *//
   std::string root = PROJECT_ROOT_DIR;
-  std::string model_path = root + "/assets/model/scene.xml";
+  std::string model_path = root + "/assets/model/mjcf/scene.xml";
   const char * filename = model_path.c_str();
-  if (argc > 1)
-  {
-    filename = argv[1];
-  }
 
   //* UI settings *//
   sim->ui0_enable = false;        // left UI is disabled (TAB)
@@ -408,10 +404,10 @@ int main(int argc, char ** argv)
   // sim->run = false;
 
   /* create controller object */
-  auto & controller = ComputedTorqueController<double>::getInstance();
+  // auto & controller = ComputedTorqueController<double>::getInstance();
 
   /* start data logging thread */
-  controller.startLogging();
+  // controller.startLogging();
 
   // start physics thread
   std::thread physicsthreadhandle(&PhysicsThread, sim.get(), filename);
@@ -419,7 +415,7 @@ int main(int argc, char ** argv)
   // start simulation UI loop (blocking call)
   sim->RenderLoop();
   physicsthreadhandle.join();
-  controller.stopLogging();  // join logging thread
+  // controller.stopLogging();  // join logging thread
 
   return 0;
 }
