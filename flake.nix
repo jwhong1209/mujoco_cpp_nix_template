@@ -1,5 +1,5 @@
 {
-  description = "Minimal MuJoCo Simulation Template in Nix";
+  description = "Minimal MuJoCo (C++) Simulation Template in Nix";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";

@@ -1,6 +1,6 @@
 ### Set minimum required version of cmake, project name and compile options
 cmake_minimum_required(VERSION 3.16)
-project(mujoco_nix_template)
+project(mujoco_cpp_nix_template)
 
 ### Set CMake policies to suppress warnings
 if(POLICY CMP0167)
