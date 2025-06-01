@@ -2,6 +2,13 @@
 cmake_minimum_required(VERSION 3.16)
 project(mujoco_nix_template)
 
+### Set CMake policies to suppress warnings
+if(POLICY CMP0167)
+  cmake_policy(SET CMP0167 NEW)  # Use BoostConfig.cmake instead of FindBoost
+endif()
+
+set(CMAKE_WARN_DEPRECATED FALSE)  # hide deprecated warning
+
 ### Set C/C++ Standard
 if(NOT CMAKE_C_STANDARD)
   set(CMAKE_C_STANDARD 11)
@@ -15,7 +22,10 @@ endif()
 add_definitions(-DPROJECT_ROOT_DIR="${CMAKE_SOURCE_DIR}")
 
 ### Find required packages
-# find_package(pinocchio REQUIRED)
+find_package(PkgConfig REQUIRED)
+find_package(urdfdom_headers REQUIRED)
+
+find_package(pinocchio REQUIRED) # after find urdfdom_headers
 find_package(casadi REQUIRED)
 find_package(Eigen3 REQUIRED)
 
@@ -51,6 +61,7 @@ PRIVATE
   mujoco
   glfw
   pthread
-  # pinocchio::pinocchio
+  urdfdom_headers::urdfdom_headers
+  pinocchio::pinocchio
   casadi
 )

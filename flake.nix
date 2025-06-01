@@ -29,10 +29,29 @@
               pkgs.glfw
               pkgs.nixgl.nixGLIntel
 
-              # other pkgs
+              # dependencies
+              pkgs.urdfdom
+              pkgs.urdfdom-headers
               pkgs.pinocchio
               pkgs.casadi
+              pkgs.eigen
+
+              # build tools
+              pkgs.cmake
+              pkgs.pkg-config
             ];
+
+            # Environment variable path setting for CMake
+            shellHook = ''
+              export CMAKE_PREFIX_PATH="${pkgs.urdfdom-headers}/lib/cmake:${pkgs.urdfdom}/lib/cmake:${pkgs.pinocchio}/lib/cmake:${pkgs.casadi}/lib/cmake:${pkgs.eigen}/lib/cmake:$CMAKE_PREFIX_PATH"
+              export PKG_CONFIG_PATH="${pkgs.urdfdom-headers}/lib/pkgconfig:${pkgs.urdfdom}/lib/pkgconfig:$PKG_CONFIG_PATH"
+              export CMAKE_MODULE_PATH="${pkgs.urdfdom-headers}/lib/cmake:${pkgs.urdfdom}/lib/cmake:$CMAKE_MODULE_PATH"
+              
+              export urdfdom_headers_DIR="${pkgs.urdfdom-headers}/lib/cmake/urdfdom_headers"
+              
+              #echo "MuJoCo development environment loaded"
+              #echo "CMAKE_PREFIX_PATH: $CMAKE_PREFIX_PATH"
+            '';
           };
 
         };

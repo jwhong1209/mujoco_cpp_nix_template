@@ -1,3 +1,0 @@
-/home/jwhong/git-repos-jwhong/mujoco_nix_template/build/CMakeFiles/simulation.dir
-/home/jwhong/git-repos-jwhong/mujoco_nix_template/build/CMakeFiles/edit_cache.dir
-/home/jwhong/git-repos-jwhong/mujoco_nix_template/build/CMakeFiles/rebuild_cache.dir
