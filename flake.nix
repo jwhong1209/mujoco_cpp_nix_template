@@ -2,7 +2,7 @@
   description = "Minimal MuJoCo (C++) Simulation Template in Nix";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.11";
     nixgl.url = "github:nix-community/nixGL";
   };
 
@@ -30,7 +30,6 @@
               pkgs.nixgl.nixGLIntel
 
               # dependencies
-              pkgs.urdfdom
               pkgs.urdfdom-headers
               pkgs.pinocchio
               pkgs.casadi
