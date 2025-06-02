@@ -49,6 +49,7 @@ target_include_directories(${EXECUTABLE_NAME}
 PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include
   ${CMAKE_CURRENT_SOURCE_DIR}/common/include/controller
+  ${CMAKE_CURRENT_SOURCE_DIR}/common/include/math
   ${CMAKE_CURRENT_SOURCE_DIR}/common/include/motion
   ${CMAKE_CURRENT_SOURCE_DIR}/common/include/robot
   ${CMAKE_CURRENT_SOURCE_DIR}/common/include/utilities

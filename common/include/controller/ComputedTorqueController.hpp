@@ -10,7 +10,10 @@
 
 #include <mujoco/mujoco.h>
 
+/* Custom Libraries */
 #include "FrankaResearch3Model.hpp"
+#include "ImpedanceController.hpp"
+
 #include "save_data.hpp"
 
 template <typename T>
@@ -28,6 +31,7 @@ private:
 
   int iter_ = 0;
   T loop_time_ = 0.0;
+  T loop_time_prev_ = 0.0;
 
   bool b_traj_start_ = false;
   T traj_time_ = 0.0;
@@ -39,15 +43,22 @@ private:
   Vec7<T> q_mes_;   // measured joint position
   Vec7<T> dq_mes_;  // measured joint velocity
 
-  Vec3<T> p_init_;
-  Vec3<T> p_des_, p_cal_, p_mes_;  // desired / calculated / measured EE Cartesian position
-  Vec6<T> v_des_, v_cal_, v_mes_;  // desired / calculated / measured EE Cartesian velocity
-  Vec6<T> a_des_;                  // desired EE Cartesian acceleration
+  Vec3<T> ee_pos_init_;
+  Vec3<T> ee_pos_des_, ee_pos_cal_, ee_pos_mes_;     // EE Cartesian position
+  Quat<T> ee_quat_des_, ee_quat_cal_, ee_quat_mes_;  // EE Cartesian quaternion
+  Vec6<T> ee_vel_des_, ee_vel_cal_, ee_vel_mes_;     // EE Cartesian twist
+  Vec6<T> ee_acc_des_, ee_acc_mes_;                  // EE Cartesian acceleration
 
-  Vec7<T> tau_des_;  // desired torque command
+  Vec7<T> q_null_des_;  // desired Null-space configuration
+  Vec7<T> tau_des_;     // desired torque command
 
   Vec6<T> K_task_;  // desired Cartesian stiffness
   Vec6<T> D_task_;  // desired Cartesian damping
+  Vec7<T> K_null_;  // desired Null-space stiffness
+  Vec7<T> D_null_;  // desired Null-space damping
+
+  std::unique_ptr<ImpedanceController<double>> imp_;
+  Vec6<double> F_imp_;
 
 public:
   ComputedTorqueController();

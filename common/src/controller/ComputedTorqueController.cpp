@@ -6,7 +6,14 @@
 /* Dependencies */
 #include <Eigen/QR>
 
+/* Custom Libraries */
+#include "orientation_utilities.hpp"
+#include "robotics_utilities.hpp"
+
 using namespace std;
+
+namespace ori = orient_utils;
+namespace robo = robot_utils;
 
 template <typename T>
 ComputedTorqueController<T>::ComputedTorqueController()
@@ -14,19 +21,29 @@ ComputedTorqueController<T>::ComputedTorqueController()
   /* initialize states */
   q_mes_.setZero();
   dq_mes_.setZero();
-  p_init_.setZero();
-  p_des_.setZero();
-  p_cal_.setZero();
-  p_mes_.setZero();
-  v_des_.setZero();
-  v_cal_.setZero();
-  v_mes_.setZero();
-  a_des_.setZero();
+  q_null_des_ << 0.0, -1.2, 0.0, -2.78, 0.0, 1.6, -0.754;  // from keyframe
+  ee_pos_init_.setZero();
+  ee_pos_des_ << 0.212303, 1.7937e-19, 0.394763;  // for initial pose
+  ee_pos_cal_.setZero();
+  ee_pos_mes_.setZero();
+  ee_quat_des_.coeffs() << 0.718084, 0.695884, 0.00718108, 0.00695908;  // for initial pose
+  ee_quat_cal_.coeffs() << 0.0, 0.0, 0.0, 1.0;
+  ee_quat_mes_.coeffs() << 0.0, 0.0, 0.0, 1.0;
+  ee_vel_des_.setZero();
+  ee_vel_cal_.setZero();
+  ee_vel_mes_.setZero();
+  ee_acc_des_.setZero();
+  ee_acc_mes_.setZero();
   tau_des_.setZero();
 
   /* set control parameters */
-  K_task_ << 200.0, 200.0, 200.0, 20.0, 20.0, 20.0;
+  K_task_ << 10.0, 10.0, 10.0, 1.0, 1.0, 1.0;
   D_task_ = 2.0 * K_task_.array().sqrt();  // critical damping
+  K_null_ << 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1;
+  D_null_ = 2.0 * K_null_.array().sqrt();
+
+  /* Define controller modules */
+  imp_ = std::make_unique<ImpedanceController<T>>();
 
   /* create model and planner objects */
   std::string root_path = PROJECT_ROOT_DIR;
@@ -60,20 +77,23 @@ template <typename T>
 void ComputedTorqueController<T>::updateImpl(const mjModel * m, mjData * d)
 {
   dof_ = m->nv - 2;  // degree of freedom (minus 2 is for fingers)
+  loop_time_prev_ = loop_time_;
   loop_time_ = d->time;
+  T dt = loop_time_ - loop_time_prev_;  // timestep
 
   //* update states *//
   this->getSensorData(m, d);
-  robot_->updateKinematics(q_mes_, dq_mes_);
 
   /* compute kinematics */
-  p_cal_ = robot_->position();
+  robot_->updateKinematics(q_mes_, dq_mes_);
+  ee_pos_cal_ = robot_->position();
+  ee_quat_cal_ = robot_->quaternion();
 
   Mat67<T> J = robot_->jacobian();
   Mat76<T> J_t = J.transpose();  // Jacobian transpose
-  // Mat76<T> J_pinv = J.inverse();
-  // Mat67<T> J_t_pinv = J_t.inverse();
-  v_cal_ = robot_->velocity();
+  Mat76<T> J_pinv = J.completeOrthogonalDecomposition().pseudoInverse();
+  Mat67<T> J_t_pinv = J_t.completeOrthogonalDecomposition().pseudoInverse();
+  ee_vel_cal_ = robot_->velocity();
 
   /* compute dynamics */
   Mat7<T> M = robot_->inertia();
@@ -82,28 +102,66 @@ void ComputedTorqueController<T>::updateImpl(const mjModel * m, mjData * d)
     std::cerr << "Warning: M is nearly singular !" << std::endl;
   }
 
-  // Mat6<T> Mo = J_t_pinv * M * J_pinv;  // operational-space inertia
-  // if (!Mo.allFinite())
-  // {
-  //   std::cerr << "Warning: Mo contains NaN or Inf !" << std::endl;
-  //   std::exit(EXIT_FAILURE);
-  // }
+  Mat6<T> Mo = J_t_pinv * M * J_pinv;  // operational-space inertia
+  if (!Mo.allFinite())
+  {
+    std::cerr << "Warning: Mo contains NaN or Inf !" << std::endl;
+    std::exit(EXIT_FAILURE);
+  }
 
   Vec7<T> tau_c = robot_->coriolis();
   Vec7<T> tau_g = robot_->gravity();
 
   //* set desired trajectory *//
-  // const T traj_start_time(3);  // trajectory starts at 3 sec
-  // const T traj_end_time(9);    // trajectory ends at 9 sec
-  // const bool b_traj_running_ = (traj_start_time <= loop_time_ && loop_time_ < traj_end_time);
+  const T traj_start_time(3);  // trajectory starts at 3 sec
+  const T traj_end_time(9);    // trajectory ends at 9 sec
+  const bool b_traj_running_ = (traj_start_time <= loop_time_ && loop_time_ < traj_end_time);
+
+  if (b_traj_running_)
+  {
+    const T radius = 0.05;                                 // [m]
+    const T total_time = traj_end_time - traj_start_time;  //
+    const T total_angle = 4.0 * M_PI;                      // rotate 2 times
+    const T omega = total_angle / total_time;              // [rad/s]
+    const T theta = omega * (loop_time_ - traj_start_time);
+
+    ee_vel_des_(0) = -radius * omega * sin(theta);  // vx
+    ee_vel_des_(1) = radius * omega * cos(theta);   // vy
+    ee_vel_des_(2) = 0.0;                           // vz
+    ee_vel_des_.tail(3).setZero();
+
+    ee_acc_des_(0) = -radius * omega * omega * cos(theta);  // ax
+    ee_acc_des_(1) = -radius * omega * omega * sin(theta);  // ay
+    ee_acc_des_(2) = 0.0;                                   // az
+    ee_acc_des_.tail(3).setZero();
+  }
+  else
+  {
+    ee_vel_des_.setZero();
+    ee_acc_des_.setZero();
+  }
+
+  Vec3<T> v_des = ee_vel_des_.head(3);
+  Vec3<T> w_des = ee_vel_des_.tail(3);
+  ee_pos_des_ += v_des * dt;
+  ee_quat_des_ = ori::getNewQuat(ee_quat_des_, w_des, dt);
 
   //* control law *//
-  /* task-space control */
-  // Vec6<T> Fc = Mo * a_des_ + K_task_.cwiseProduct(p_des_ - p_mes_) +
-  // D_task_.cwiseProduct(-v_mes_); tau_des_ = J_t * Fc;
+  imp_->setParameters(K_task_, D_task_, K_null_, D_null_);
+  Vec6<T> ee_pose_err = imp_->getPoseError(ee_pos_des_, ee_pos_cal_, ee_quat_des_, ee_quat_cal_);
+  Vec6<T> ee_pose_err_prev = imp_->getPreviousPoseError();
+  Vec6<T> dpose_err = robo::getEulerDerivative(ee_pose_err, ee_pose_err_prev, dt);
+  F_imp_ = imp_->getTaskControlForce(dpose_err);
+
+  Vec6<T> Fc = Mo * ee_acc_des_ + F_imp_;
+  tau_des_ = J_t * Fc;
+
+  imp_->computeNullConfigError(q_null_des_, q_mes_);
+  Vec7<T> tau_null = imp_->getNullControlTorque(dq_mes_, J_t, J_t_pinv);
+  tau_des_ += tau_null;
 
   /* joint-space control */
-  // tau_des_ += tau_g;
+  tau_des_ += tau_c + tau_g;
 
   //* send command *//
   for (int i = 0; i < dof_; ++i)
@@ -126,11 +184,19 @@ void ComputedTorqueController<T>::getSensorData(const mjModel * m, mjData * d)
     dq_mes_(i) = d->sensordata[i + dof_];
   }
 
-  // p_mes_(0) = d->sensordata[5];        // y direction
-  // p_mes_(1) = d->sensordata[6] - 1.5;  // z direction (1.5 is initial height)
+  ee_quat_mes_.coeffs()[0] = d->sensordata[18];  // x
+  ee_quat_mes_.coeffs()[1] = d->sensordata[19];  // y
+  ee_quat_mes_.coeffs()[2] = d->sensordata[20];  // z
+  ee_quat_mes_.coeffs()[3] = d->sensordata[17];  // w
 
-  // v_mes_(0) = d->sensordata[12];  // y direction
-  // v_mes_(1) = d->sensordata[13];  // z direction (1.5 is initial height)
+  for (int i = 0; i < 3; ++i)
+  {
+    ee_pos_mes_(i) = d->sensordata[i + 14];
+    ee_vel_mes_(i) = d->sensordata[i + 21];
+    ee_vel_mes_(i + 3) = d->sensordata[i + 24];
+    ee_acc_mes_(i) = d->sensordata[i + 27];
+    ee_acc_mes_(i + 3) = d->sensordata[i + 30];
+  }
 }
 
 //* ----- LOGGING ----------------------------------------------------------------------------------
@@ -165,8 +231,8 @@ void ComputedTorqueController<T>::dataLoggingLoop()
     {
       std::lock_guard<std::mutex> lock(logging_mtx_);
       logger_->save_scalar(loop_time_);
-      logger_->save_vector(p_des_);
-      logger_->save_vector(p_cal_);
+      logger_->save_vector(ee_pos_des_);
+      logger_->save_vector(ee_pos_cal_);
       logger_->save_vector(tau_des_, true);
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(10));  // log data in 100Hz

@@ -28,6 +28,9 @@ template <typename T>
 using Vec3 = Eigen::Matrix<T, 3, 1>;  // 3x1 Vector
 
 template <typename T>
+using Vec4 = Eigen::Matrix<T, 4, 1>;  // 4x1 Vector
+
+template <typename T>
 using Vec6 = Eigen::Matrix<T, 6, 1>;  // 6x1 Vector
 
 template <typename T>
@@ -39,6 +42,9 @@ using MatX = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;  // Dynamic matri
 
 template <typename T>
 using Mat3 = typename Eigen::Matrix<T, 3, 3>;  // 3x3 Matrix
+
+template <typename T>
+using Mat4 = typename Eigen::Matrix<T, 4, 4>;  // 4x4 Matrix
 
 template <typename T>
 using Mat6 = Eigen::Matrix<T, 6, 6>;  // 6x6 Matrix

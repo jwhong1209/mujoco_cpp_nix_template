@@ -66,7 +66,8 @@ Vec6<T> ImpedanceController<T>::getPoseError(const Vec3<T> & p_0e_des, const Vec
 
 template <typename T>
 Vec7<T> ImpedanceController<T>::getNullControlTorque(const Vec7<T> & dq_null_err,
-                                                     const MatX<T> & J_t, const MatX<T> & J_t_pinv)
+                                                     const Mat76<T> & J_t,
+                                                     const Mat67<T> & J_t_pinv)
 {
   if (!J_t.allFinite())
   {

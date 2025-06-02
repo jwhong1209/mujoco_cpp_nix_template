@@ -12,7 +12,6 @@
 #include <type_traits>
 
 #include "eigen_types.hpp"
-#include "math_utilities.hpp"
 
 namespace orient_utils
 {

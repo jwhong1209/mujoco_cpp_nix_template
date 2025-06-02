@@ -69,8 +69,8 @@ public:
    * @param J_t : end-effector Jacobian transpose matrix
    * @param J_t_pinv : pseudo-inverse of Jacobian transpose matrix
    */
-  Vec7<T> getNullControlTorque(const Vec7<T> & dq_null_err, const MatX<T> & J_t,
-                               const MatX<T> & J_t_pinv);
+  Vec7<T> getNullControlTorque(const Vec7<T> & dq_null_err, const Mat76<T> & J_t,
+                               const Mat67<T> & J_t_pinv);
 };
 
 #endif  // IMPEDANCE_CONTROLLER_HPP_
