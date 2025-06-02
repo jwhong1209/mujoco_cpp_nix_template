@@ -98,5 +98,5 @@ Vec7<T> FrankaResearch3Model<T>::gravity()
   return data_.g;
 }
 
-// template class FrankaResearch3Model<float>;
+// template class FrankaResearch3Model<float>; // ! float type induces conflict with pinocchio API
 template class FrankaResearch3Model<double>;
