@@ -1,11 +1,10 @@
-This is a minimal MuJoCo (ver 3.2.5) C++ template in Nix Environment.
-- Nixpkgs: 24.11
+This is a minimal MuJoCo (ver 3.2.5) C++ template in Nix Environment (nixpkg ver 24.11).
 
 # Dependencies
-- Pinocchio 
-- CasADi
-- Eigen 
 - MuJoCo
+- Eigen 
+- Pinocchio 
+- CasADi (It is not utilized in codes currently, but involved in `flake.nix`)
 
 >[!note]
 > All the dependencies are configured in `flake.nix` file. You need to install Nix, and get used to how to it first.
