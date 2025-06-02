@@ -4,13 +4,13 @@
 #include <atomic>
 #include <memory>
 #include <mutex>
+#include <string>
 #include <thread>
 #include <vector>
 
 #include <mujoco/mujoco.h>
 
-#include "FrankaResearch3.hpp"
-#include "TrajectoryGenerator.hpp"
+#include "FrankaResearch3Model.hpp"
 #include "save_data.hpp"
 
 template <typename T>
@@ -23,8 +23,8 @@ private:
   std::thread logging_thread_;
   std::atomic<bool> b_logging_running_{ false };
 
-  std::unique_ptr<DoublePendulumModel<T>> robot_;
-  std::unique_ptr<TrajectoryGenerator<T>> planner_;
+  std::string root_path_;
+  std::unique_ptr<FrankaResearch3Model<T>> robot_;
 
   int iter_ = 0;
   T loop_time_ = 0.0;
@@ -33,29 +33,21 @@ private:
   T traj_time_ = 0.0;
 
   int traj_type_ = 1;
-  enum TrajectoryType
-  {
-    CUBIC = 0,
-    CIRCULAR,
-  };
 
   int dof_;
 
-  Vec2<T> q_des_, q_mes_;    // desired / measured joint position
-  Vec2<T> dq_des_, dq_mes_;  // desired / measured joint velocity
+  Vec7<T> q_mes_;   // measured joint position
+  Vec7<T> dq_mes_;  // measured joint velocity
 
-  Vec2<T> p_init_;
-  Vec2<T> p_des_, p_cal_, p_mes_;  // desired / calculated / measured EE Cartesian position
-  Vec2<T> v_des_, v_cal_, v_mes_;  // desired / calculated / measured EE Cartesian velocity
-  Vec2<T> a_des_;                  // desired EE Cartesian acceleration
+  Vec3<T> p_init_;
+  Vec3<T> p_des_, p_cal_, p_mes_;  // desired / calculated / measured EE Cartesian position
+  Vec6<T> v_des_, v_cal_, v_mes_;  // desired / calculated / measured EE Cartesian velocity
+  Vec6<T> a_des_;                  // desired EE Cartesian acceleration
 
-  Vec2<T> F_ext_local_;  // external force in local frame
-  Vec2<T> F_ext_world_;  // external force in world frame
+  Vec7<T> tau_des_;  // desired torque command
 
-  Vec2<T> tau_des_;  // desired torque command
-
-  Vec2<T> kp_;  // proportional gain
-  Vec2<T> kd_;  // derviative gain
+  Vec6<T> K_task_;  // desired Cartesian stiffness
+  Vec6<T> D_task_;  // desired Cartesian damping
 
 public:
   ComputedTorqueController();
@@ -67,8 +59,8 @@ public:
 
   static ComputedTorqueController & getInstance()
   {
-    static ComputedTorqueController controller;
-    return controller;
+    static ComputedTorqueController instance;
+    return instance;
   }
 
   static void update(const mjModel * m, mjData * d);
@@ -80,7 +72,6 @@ public:
   void getSensorData(const mjModel * m, mjData * d);
 
   //* ----- LOGGING --------------------------------------------------------------------------------
-  // TODO: Implement data logging in separated thread
   void startLogging();
   void stopLogging();
   void dataLoggingLoop();

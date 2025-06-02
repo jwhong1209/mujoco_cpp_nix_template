@@ -28,7 +28,7 @@
 #include <thread>
 
 /* Custom libraries */
-// #include "ComputedTorqueController.hpp"
+#include "ComputedTorqueController.hpp"
 
 namespace
 {
@@ -352,7 +352,7 @@ void PhysicsThread(mj::Simulate * sim, const char * filename)
 
       //* controller callback *//
       // !!! mjcb_control should be callback after simulation initialized
-      // mjcb_control = &ComputedTorqueController<double>::update;
+      mjcb_control = &ComputedTorqueController<double>::update;
     }
     else
     {
@@ -404,10 +404,10 @@ int main(int argc, char ** argv)
   // sim->run = false;
 
   /* create controller object */
-  // auto & controller = ComputedTorqueController<double>::getInstance();
+  auto & controller = ComputedTorqueController<double>::getInstance();
 
   /* start data logging thread */
-  // controller.startLogging();
+  controller.startLogging();
 
   // start physics thread
   std::thread physicsthreadhandle(&PhysicsThread, sim.get(), filename);
@@ -415,7 +415,7 @@ int main(int argc, char ** argv)
   // start simulation UI loop (blocking call)
   sim->RenderLoop();
   physicsthreadhandle.join();
-  // controller.stopLogging();  // join logging thread
+  controller.stopLogging();  // join logging thread
 
   return 0;
 }

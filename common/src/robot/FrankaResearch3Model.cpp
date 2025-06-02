@@ -34,7 +34,7 @@ void FrankaResearch3Model<T>::updateKinematics(const Vec7<T> & q, const Vec7<T> 
   pin::forwardKinematics(model_, data_, q_, dq_);
   pin::updateFramePlacements(model_, data_);
   pin::computeJointJacobians(model_, data_, q_);
-  // pin::framesForwardKinematics(model_, data_); // ! check this out
+  // pin::framesForwardKinematics(model_, data_); // ! This is no longer necessary. API is changed.
 
   /* compute Jacobian */
   pin::getFrameJacobian(model_, data_, ee_frame_id_, pin::ReferenceFrame::LOCAL_WORLD_ALIGNED, J_);

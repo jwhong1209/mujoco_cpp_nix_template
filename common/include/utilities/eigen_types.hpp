@@ -22,6 +22,9 @@ template <typename T>
 using VecX = Eigen::Matrix<T, Eigen::Dynamic, 1>;  // Dynamic vector
 
 template <typename T>
+using Vec2 = Eigen::Matrix<T, 2, 1>;  // 2x1 Vector
+
+template <typename T>
 using Vec3 = Eigen::Matrix<T, 3, 1>;  // 3x1 Vector
 
 template <typename T>
