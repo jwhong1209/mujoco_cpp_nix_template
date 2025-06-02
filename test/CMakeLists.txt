@@ -38,12 +38,17 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 add_executable(${PROJECT_NAME}
-  casadi-aba.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/robot/FrankaResearch3Model.cpp
+  
+  # casadi-aba.cpp
+  fr3_model_test.cpp
 )
 
 target_include_directories(${PROJECT_NAME}
 PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common/include/robot
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common/include/utilities
 )
 
 target_link_libraries(${PROJECT_NAME}

@@ -31,7 +31,6 @@ find_package(Eigen3 REQUIRED)
 
 ### Set compile options
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  # add_compile_options(-Wall -Wextra -Wpedantic) # when you can't find build error, try this
   add_compile_options(-Wpedantic)
 endif()
 
@@ -53,7 +52,6 @@ PUBLIC
   # ${CMAKE_CURRENT_SOURCE_DIR}/common/include/motion
   # ${CMAKE_CURRENT_SOURCE_DIR}/common/include/robot
   # ${CMAKE_CURRENT_SOURCE_DIR}/common/include/utilities
-  $<INSTALL_INTERFACE:include>
 )
 
 target_link_libraries(${EXECUTABLE_NAME}
