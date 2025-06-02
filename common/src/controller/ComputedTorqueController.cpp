@@ -21,12 +21,12 @@ ComputedTorqueController<T>::ComputedTorqueController()
   /* initialize states */
   q_mes_.setZero();
   dq_mes_.setZero();
-  q_null_des_ << 0.0, -1.2, 0.0, -2.78, 0.0, 1.6, -0.754;  // from keyframe
+  q_null_des_ << 0.0, -0.7854, 0.0, -2.5, 0.0, 1.75, -0.754;  // from keyframe
   ee_pos_init_.setZero();
-  ee_pos_des_ << 0.212303, 1.7937e-19, 0.394763;  // for initial pose
+  ee_pos_des_ << 0.322141, 5.44356e-19, 0.434246;  // for initial pose
   ee_pos_cal_.setZero();
   ee_pos_mes_.setZero();
-  ee_quat_des_.coeffs() << 0.718084, 0.695884, 0.00718108, 0.00695908;  // for initial pose
+  ee_quat_des_.coeffs() << 0.718008, 0.69581, 0.0127101, 0.0123171;  // for initial pose
   ee_quat_cal_.coeffs() << 0.0, 0.0, 0.0, 1.0;
   ee_quat_mes_.coeffs() << 0.0, 0.0, 0.0, 1.0;
   ee_vel_des_.setZero();
@@ -97,11 +97,6 @@ void ComputedTorqueController<T>::updateImpl(const mjModel * m, mjData * d)
 
   /* compute dynamics */
   Mat7<T> M = robot_->inertia();
-  if (M.determinant() < 1e-10)
-  {
-    std::cerr << "Warning: M is nearly singular !" << std::endl;
-  }
-
   Mat6<T> Mo = J_t_pinv * M * J_pinv;  // operational-space inertia
   if (!Mo.allFinite())
   {
@@ -168,7 +163,6 @@ void ComputedTorqueController<T>::updateImpl(const mjModel * m, mjData * d)
   {
     d->ctrl[i] = tau_des_[i];
   }
-
   iter_++;
 }
 
@@ -188,6 +182,7 @@ void ComputedTorqueController<T>::getSensorData(const mjModel * m, mjData * d)
   ee_quat_mes_.coeffs()[1] = d->sensordata[19];  // y
   ee_quat_mes_.coeffs()[2] = d->sensordata[20];  // z
   ee_quat_mes_.coeffs()[3] = d->sensordata[17];  // w
+  // cout << "quat:\t" << ee_quat_mes_.coeffs() << endl;
 
   for (int i = 0; i < 3; ++i)
   {
@@ -197,6 +192,7 @@ void ComputedTorqueController<T>::getSensorData(const mjModel * m, mjData * d)
     ee_acc_mes_(i) = d->sensordata[i + 27];
     ee_acc_mes_(i + 3) = d->sensordata[i + 30];
   }
+  // cout << "pos:\t" << ee_pos_mes_.transpose() << endl;
 }
 
 //* ----- LOGGING ----------------------------------------------------------------------------------

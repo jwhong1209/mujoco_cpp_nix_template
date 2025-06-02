@@ -2,6 +2,7 @@
 
 /* C++ STL */
 #include <cmath>
+#include <iostream>
 
 using namespace std;
 namespace pin = pinocchio;
@@ -81,6 +82,11 @@ Mat7<T> FrankaResearch3Model<T>::inertia()
   for (int i = 0; i < model_.nq; ++i)
     for (int j = 0; j < i; ++j)
       data_.M(i, j) = data_.M(j, i);
+
+  if (data_.M.determinant() < 1e-10)
+  {
+    cerr << "Warning: M is nearly singular !" << endl;
+  }
   return data_.M;
 }
 
